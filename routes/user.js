@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const OTP = require('../models/OTP');
 const nodemailer = require('nodemailer');
+const Admin = require('../models/Admin');
 
 const router = express.Router();
 
@@ -180,6 +181,60 @@ router.post('/signup', async (req, res) => {
     } catch (error) {
         console.error('Signup Error:', error);
         res.status(500).send({ message: 'Error creating user', error: error.message });
+    }
+});
+
+
+
+
+// Protect routes (middleware)
+async function authenticate(req, res, next) {
+    console.log(req.session);
+    if (req.session.adminId) {
+        try {
+            const admin = await Admin.findById(req.session.adminId);
+            if (!admin) {
+                return res.status(401).send('Admin not found');
+            }
+            req.admin = admin; // Attach the admin data to the request object
+            next();
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal Server Error');
+        }
+    } else {
+        res.status(401).send('Unauthorized');
+    }
+}
+
+// Example of a protected route
+router.get('/eventdata',async (req, res) => {
+    try {
+        const users = await User.find({}); // Fetch all users
+        res.status(200).send({"eventdata":users});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
+// DELETE route to delete an event
+router.delete('/eventdata/:eventId', async (req, res) => {
+    const eventId = req.params.eventId;
+
+    try {
+        const event = await User.find({ _id: eventId });
+        if (!event) {
+            return res.status(404).send('Event data not found');
+        }
+
+        await User.deleteOne({ _id: eventId });
+        res.send('deleted successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
