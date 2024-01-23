@@ -15,5 +15,8 @@ const SubscribeSchema = new Schema({
     timestamps: true 
 });
 
+
+
+
 // Compile and export the model
 module.exports = mongoose.model('Subscribe', SubscribeSchema);
