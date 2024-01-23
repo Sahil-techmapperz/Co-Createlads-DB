@@ -2,59 +2,46 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
-const Admin=require('./routes/Admin');
-
-
-
-const corsOptions = (req, callback) => {
-  let corsOptions;
-
-  // Allow requests with credentials
-  corsOptions = {
-    origin: req.header('Origin'), // Reflect the request origin
-    credentials: true, // This allows the server to accept cookies and authentication
-  };
-
-  callback(null, corsOptions); // Callback expects two parameters: error and options
-};
-
+const Admin = require('./routes/Admin');
+const Subscribe = require('./routes/Subscribe');
 
 
 const app = express();
-app.use(cookieParser());
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB', err));
 
-  app.use(cors(corsOptions));
+// CORS configuration for allowing any origin but with credentials
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    return callback(null, true);
+  },
+  credentials: true,
+}));
+
 app.use(bodyParser.json());
 app.use(passport.initialize());
 
 
-// Configure the session middleware
-app.use(session({
-  secret: process.env.APP_SECRET, // Replace with a real secret key
-  resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 3600000 } // 1 hour
-}));
+
 
 // Routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', Admin);
+app.use('/subscribe', Subscribe);
 
-app.get("/",(req,res)=>{
-  return res.status(200).send({ message: 'Hollo from Co-Createlabs' });
+app.get("/", (req, res) => {
+  return res.status(200).send({ message: 'Hello from Co-Createlabs Backend' });
 });
 
 const PORT = process.env.PORT || 3000;

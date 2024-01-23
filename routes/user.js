@@ -2,7 +2,8 @@ const express = require('express');
 const User = require('../models/User');
 const OTP = require('../models/OTP');
 const nodemailer = require('nodemailer');
-const Admin = require('../models/Admin');
+const authMiddleware= require("../middlewares/AdminAuthorization_middleware")
+
 
 const router = express.Router();
 
@@ -186,29 +187,8 @@ router.post('/signup', async (req, res) => {
 
 
 
-
-// Protect routes (middleware)
-async function authenticate(req, res, next) {
-    console.log(req.session);
-    if (req.session.adminId) {
-        try {
-            const admin = await Admin.findById(req.session.adminId);
-            if (!admin) {
-                return res.status(401).send('Admin not found');
-            }
-            req.admin = admin; // Attach the admin data to the request object
-            next();
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal Server Error');
-        }
-    } else {
-        res.status(401).send('Unauthorized');
-    }
-}
-
 // Example of a protected route
-router.get('/eventdata',async (req, res) => {
+router.get('/eventdata',authMiddleware,async (req, res) => {
     try {
         const users = await User.find({}); // Fetch all users
         res.status(200).send({"eventdata":users});
@@ -221,7 +201,7 @@ router.get('/eventdata',async (req, res) => {
 
 
 // DELETE route to delete an event
-router.delete('/eventdata/:eventId', async (req, res) => {
+router.delete('/eventdata/:eventId',authMiddleware, async (req, res) => {
     const eventId = req.params.eventId;
 
     try {
@@ -237,6 +217,28 @@ router.delete('/eventdata/:eventId', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
+
+// DELETE route to delete an event
+router.delete('/event/bulk',authMiddleware, async (req, res) => {
+    try {
+        const { ids } = req.body;
+    
+        if (!ids || ids.length === 0) {
+          return res.status(400).send({ message: 'No IDs provided' });
+        }
+    
+        // Delete events with IDs in the provided array
+        await User.deleteMany({ _id: { $in: ids } });
+    
+        res.status(200).send({ message: 'Events deleted successfully' });
+      } catch (err) {
+        console.error('Error during bulk deletion:', err);
+        res.status(500).send({ message: 'Error during bulk deletion' });
+      }
+});
+
 
 
 

@@ -34,7 +34,7 @@ const AdminSchema = new mongoose.Schema({
         country: String
     },
     dateOfBirth: {
-        type: Date,
+        type: String,
         required: false
     },
     isActive: {
