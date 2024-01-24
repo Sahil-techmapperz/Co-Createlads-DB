@@ -7,7 +7,8 @@ const upload = multer({ dest: 'uploads/' });
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secure-secret';
-const AdminMiddleware = require("../middlewares/AdminAuthorization_middleware")
+const AdminMiddleware = require("../middlewares/AdminAuthorization_middleware");
+const { json } = require('body-parser');
 
 const router = express.Router();
 
@@ -124,7 +125,7 @@ router.patch('/profile/update', AdminMiddleware, async (req, res) => {
         res.status(200).send({ admin: adminDataToSend });
     } catch (error) {
         console.error("Error updating or retrieving admin profile:", error.message);
-        res.status(500).send('Error updating or retrieving admin profile');
+        res.status(500).send(error.message);
     }
 });
 
