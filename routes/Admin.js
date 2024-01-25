@@ -244,16 +244,18 @@ router.patch('/profile/update', AdminMiddleware, async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
-
+    
     try {
         const admin = await Admin.findOne({ email: email.toLowerCase() });
+        
+        
         if (!admin) {
-            return res.status(401).send('Authentication failed');
+            return res.status(401).send('Authentication failed admin not found');
         }
 
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
-            return res.status(401).send('Authentication failed');
+            return res.status(401).send('Authentication failed password is worng');
         }
 
         // Create JWT token
@@ -272,7 +274,7 @@ router.post('/login', async (req, res) => {
 
 // Admin signup route
 router.post('/signup', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password,role } = req.body;
 
     try {
         // Check if the admin already exists
@@ -289,7 +291,7 @@ router.post('/signup', async (req, res) => {
         admin = new Admin({
             email: email.toLowerCase(),
             password: hashedPassword,
-            role: "Admin"
+            role:role
         });
 
         await admin.save();

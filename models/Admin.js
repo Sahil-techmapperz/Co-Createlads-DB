@@ -9,16 +9,16 @@ const AdminSchema = new mongoose.Schema({
     },
     password: {
         type: String,
+        required: true,
         required: true
     },
     fullName: {
         type: String,
-        required: true,
         trim: true
+        
     },
     username: {
         type: String,
-        required: true,
         trim: true,
     },
     phoneNumber: {

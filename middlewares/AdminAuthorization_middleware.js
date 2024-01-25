@@ -6,7 +6,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const authMiddleware = (req, res, next) => {
     // Extract the token from the Authorization header and remove any leading/trailing whitespace
     const token = req.header('Authorization')?.replace('Bearer ', '').trim();
-
     if (!token) {
         return res.status(401).send('Access denied. No token provided.');
     }

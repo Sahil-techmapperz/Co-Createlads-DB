@@ -9,6 +9,8 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const Admin = require('./routes/Admin');
 const Subscribe = require('./routes/Subscribe');
+const Contact = require('./routes/Contact');
+const upcomingevent = require('./routes/Upcomingevents');
 
 
 const app = express();
@@ -39,6 +41,8 @@ app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', Admin);
 app.use('/subscribe', Subscribe);
+app.use('/contact', Contact);
+app.use('/upcomingevent', upcomingevent);
 
 app.get("/", (req, res) => {
   return res.status(200).send({ message: 'Hello from Co-Createlabs Backend' });
